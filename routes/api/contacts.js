@@ -3,8 +3,8 @@ const express = require('express')
 const router = express.Router()
 
 const contacts = require("../../models/contacts")
+//  const Contact = require('../../models/contact')
 const { HttpError } = require("../../helpers/HttpError")
-
 const Joi = require("joi")
 
 const addSchema = Joi.object({
