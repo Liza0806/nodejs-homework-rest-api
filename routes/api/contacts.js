@@ -1,17 +1,9 @@
 const express = require('express')
-
 const router = express.Router()
-
 const contacts = require("../../models/contacts")
-//  const Contact = require('../../models/contact')
+const {addSchema, updateFavoriteSchema} = require('../../models/contact')
 const { HttpError } = require("../../helpers/HttpError")
-const Joi = require("joi")
-
-const addSchema = Joi.object({
-  name: Joi.string().required(),
-  email: Joi.string().required(),
-  phone: Joi.string().required()
-})
+const { isValidId } = require('../../middlewares/isValidId')
 
 router.get('/', async (req, res, next) => {
   try {
@@ -25,7 +17,7 @@ router.get('/', async (req, res, next) => {
  }
 })
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', isValidId, async (req, res, next) => {
   try{
 const {id} = req.params;
 console.log(req.params)
@@ -56,7 +48,7 @@ res.status(201).json(result)
 
 })
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', isValidId, async (req, res, next) => {
 try { 
   const { id } = req.params;
   const result = await contacts.removeContact(id);
@@ -69,7 +61,7 @@ try {
 }
 })
 
-router.put('/:contactId', async (req, res, next) => {
+router.put('/:id', isValidId, async (req, res, next) => {
   try {
     const { error } = addSchema.validate(req.body);
 
@@ -77,8 +69,8 @@ router.put('/:contactId', async (req, res, next) => {
       throw HttpError(404, error.message); 
     }
 
-    const { contactId } = req.params;
-    const result = await contacts.updateContact(contactId, req.body);
+    const { id } = req.params;
+    const result = await contacts.updateContact(id, req.body);
 
     if (!result) {
       throw HttpError(404, "Not found");
@@ -89,6 +81,29 @@ router.put('/:contactId', async (req, res, next) => {
     next(error);
   }
 });
+router.put('/:id/favorite', isValidId, async (req, res, next) => {
+  console.log(req.body)
+  try {
+    const { error } = updateFavoriteSchema.validate(req.body);
+
+    if (error) {
+      throw HttpError(404, "missing field favorite"); 
+    }
+
+    const { id } = req.params;
+ 
+    const result = await contacts.updateStatusContact(id, req.body);
+
+    if (!result) {
+      throw HttpError(404, "Not found");
+    }
+
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 
 module.exports = router
