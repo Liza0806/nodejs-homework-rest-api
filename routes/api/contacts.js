@@ -4,10 +4,11 @@ const contacts = require("../../controllers/contacts")
 const {addSchema, updateFavoriteSchema} = require('../../models/contact')
 const { HttpError } = require("../../helpers/HttpError")
 const { isValidId } = require('../../middlewares/isValidId')
+const authentificate = require('../../middlewares/authentificate')
 
-router.get('/', async (req, res, next) => {
+router.get('/', authentificate, async (req, res, next) => {
   try {
-     const result = await contacts.listContacts()
+     const result = await contacts.listContacts(req, res)
   res.json(result)
   }
  catch (error){
@@ -17,10 +18,9 @@ router.get('/', async (req, res, next) => {
  }
 })
 
-router.get('/:id', isValidId, async (req, res, next) => {
+router.get('/:id', authentificate, isValidId, async (req, res, next) => {
   try{
 const {id} = req.params;
-console.log(req.params)
 const result = await contacts.getContactById(id);
 if (!result){
   throw HttpError(404, "Not found")
@@ -33,13 +33,14 @@ res.json(result)
 
 })
 
-router.post('/', async (req, res, next) => {
+router.post('/', authentificate, async (req, res, next) => {
   try{
    const {error} = addSchema.validate(req.body)
     if(error){
       throw HttpError(404, error.message)
     }
-const result = await contacts.addContact(req.body);
+const result = await contacts.addContact(req);
+console.log(result, 'result in router.post')
 res.status(201).json(result)
   }
   catch (error){
@@ -48,7 +49,7 @@ res.status(201).json(result)
 
 })
 
-router.delete('/:id', isValidId, async (req, res, next) => {
+router.delete('/:id', authentificate, isValidId, async (req, res, next) => {
 try { 
   const { id } = req.params;
   const result = await contacts.removeContact(id);
@@ -61,7 +62,7 @@ try {
 }
 })
 
-router.put('/:id', isValidId, async (req, res, next) => {
+router.put('/:id', authentificate, isValidId, async (req, res, next) => {
   try {
     const { error } = addSchema.validate(req.body);
 
@@ -81,8 +82,7 @@ router.put('/:id', isValidId, async (req, res, next) => {
     next(error);
   }
 });
-router.put('/:id/favorite', isValidId, async (req, res, next) => {
-  console.log(req.body)
+router.put('/:id/favorite', authentificate, isValidId, async (req, res, next) => {
   try {
     const { error } = updateFavoriteSchema.validate(req.body);
 

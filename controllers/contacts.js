@@ -1,21 +1,17 @@
  const {Contact} = require('../models/contact')
-
-// const path = require("path")
 const { HttpError } = require('../helpers/HttpError')
 
-// const contactsPath = path.join(__dirname, "contacts.json") 
-// console.log(contactsPath)
-
-async function listContacts() {
-    const data = await Contact.find()
-    console.log("list")
-    return data
+async function listContacts(req, res) {
+  const {_id: owner} = req.user;
+  const{page=1, limit=10}=req.query;
+  const skip=(page-1)*limit;
+  const data = await Contact.find({owner}, "", {skip, limit})
+  return data
 }
 
 async function getContactById(id) {
     const result = await Contact.findOne({_id: id})
     return result
-
 }
 async function removeContact(id) {
      const result = await Contact.findByIdAndDelete(id)
@@ -23,9 +19,9 @@ async function removeContact(id) {
 }
 
 async function addContact(req) {
-    const newContact = await Contact.create(req);
-    return newContact;
- 
+  const {_id: owner} = req.user;
+  const newContact = await Contact.create({...req.body, owner});
+  return newContact;
 }
 
 async function updateContact(id, req) {
@@ -51,6 +47,6 @@ module.exports = {
   updateStatusContact,
   getContactById,
   removeContact,
-   addContact,
-   updateContact,
+  addContact,
+  updateContact,
 }

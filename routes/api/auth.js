@@ -1,33 +1,17 @@
 const express = require('express')
-const {HttpError} = require('../../helpers/HttpError')
 const router = express.Router()
-const vaildateBody = require('../../middlewares/vaildateBody')
+const validateBody = require('../../middlewares/validateBody')
 const {schemas} = require('../../models/user')
-const {User} = require('../../models/user')
+const controllers =require('../../controllers/auth');
+const authentificate = require('../../middlewares/authentificate')
 
+router.post("/register", validateBody(schemas.registerSchema), controllers.register)
 
-router.post('/register', 
-async (req, res, next) => {
-    try{
-     const {error} = vaildateBody(schemas.registerSchema)
-      if(error){
-        throw HttpError(404, error.message)
-      }
-      console.log(req.body)
-      const newUser = await User.create(req.body)
-      console.log(newUser, "vff")
-      res.status(201).json({
-        email: newUser.email,
-        subscription: newUser.subscription,
-      });
-    }
-    catch (error){
-    next(error)
-     }
-  }
+router.post("/login",validateBody(schemas.loginSchema),controllers.login);
 
+router.get("/current", authentificate, controllers.getCurrent);
 
-)
+router.post("/logout",authentificate, controllers.logout);
 
 module.exports = router
 
