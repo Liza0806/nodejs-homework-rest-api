@@ -1,10 +1,10 @@
- const {Contact} = require('./contact')
+ const {Contact} = require('../models/contact')
 
-const path = require("path")
+// const path = require("path")
 const { HttpError } = require('../helpers/HttpError')
 
-const contactsPath = path.join(__dirname, "contacts.json") 
-console.log(contactsPath)
+// const contactsPath = path.join(__dirname, "contacts.json") 
+// console.log(contactsPath)
 
 async function listContacts() {
     const data = await Contact.find()

@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const contacts = require("../../models/contacts")
+const contacts = require("../../controllers/contacts")
 const {addSchema, updateFavoriteSchema} = require('../../models/contact')
 const { HttpError } = require("../../helpers/HttpError")
 const { isValidId } = require('../../middlewares/isValidId')
